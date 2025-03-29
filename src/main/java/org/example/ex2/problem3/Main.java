@@ -46,7 +46,8 @@ public class Main {
             resp.setFactors(cachedFactors);
 
             if (!Arrays.equals(cachedFactors, factor(i))) {
-                System.out.printf(ANSI_RED + "⚠ Race condition detected! i=%d, cachedFactors=%s%n"+ ANSI_RESET, i, Arrays.toString(cachedFactors));
+                System.out.printf(ANSI_RED + "⚠ Race condition detected! i=%d, cachedFactors=%s%n"
+                        + ANSI_RESET, i, Arrays.toString(cachedFactors));
             } else {
                 System.out.println("Cache successfully used");
             }
