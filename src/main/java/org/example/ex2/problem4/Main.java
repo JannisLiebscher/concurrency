@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 public class Main {
     static BigInteger winnerNonce = new BigInteger("-1");
     static BigInteger winnerHash;
-    static long winnerTime;
+    static double winnerTime;
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -20,7 +20,7 @@ public class Main {
             BigInteger finalNonce = nonce;
             executor.submit(() -> {
                 try {
-                    service("new block", new BigInteger("40000000000000000000000000000000000000000000000000000000000000000000000"), finalNonce);
+                    service("new block", new BigInteger("400000000000000000000000000000000000000000000000000000000000000000000000"), finalNonce);
                 } catch (NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
                 }
@@ -29,7 +29,7 @@ public class Main {
 
         }
         long end = System.currentTimeMillis();
-        winnerTime = (end - start) / 1000;
+        winnerTime = (double) (end - start) / 1000;
         executor.shutdown();
         while (!executor.isTerminated()) {
             Thread.sleep(100);
