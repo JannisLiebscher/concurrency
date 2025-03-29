@@ -10,22 +10,23 @@ public class Main {
     static BigInteger winnerNonce = new BigInteger("-1");
     static BigInteger winnerHash;
     static double winnerTime;
+    static String step = "100000";
 
     public static void main(String[] args) throws InterruptedException {
 
-        ExecutorService executor = Executors.newFixedThreadPool(20);
+        ExecutorService executor = Executors.newFixedThreadPool(40);
         BigInteger nonce = new BigInteger("0");
         long start = System.currentTimeMillis();
         while (winnerNonce.equals(new BigInteger("-1"))) {
             BigInteger finalNonce = nonce;
             executor.submit(() -> {
                 try {
-                    service("new block", new BigInteger("400000000000000000000000000000000000000000000000000000000000000000000000"), finalNonce);
+                    service("new block", new BigInteger("4000000000000000000000000000000000000000000000000000000000000000000000"), finalNonce);
                 } catch (NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
                 }
             });
-            nonce = nonce.add(new BigInteger("1"));
+            nonce = nonce.add(new BigInteger(step));
 
         }
         long end = System.currentTimeMillis();
@@ -41,14 +42,18 @@ public class Main {
     }
 
     private static void service(String block, BigInteger target, BigInteger nonce) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] input = (block + nonce.toString()).getBytes();
+        BigInteger lastNonce = nonce.add(new BigInteger(step));
+        while (!nonce.equals(lastNonce) && winnerNonce.equals(new BigInteger("-1"))) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] input = (block + nonce.toString()).getBytes();
 
-        byte[] hash = digest.digest((digest.digest(input)));
+            byte[] hash = digest.digest((digest.digest(input)));
 
-        if (new BigInteger(hash).compareTo(target) < 0 && new BigInteger(hash).compareTo(new BigInteger("0")) > 0) {
-            winnerNonce = nonce;
-            winnerHash = new BigInteger(hash);
+            if (new BigInteger(hash).compareTo(target) < 0 && new BigInteger(hash).compareTo(new BigInteger("0")) > 0) {
+                winnerNonce = nonce;
+                winnerHash = new BigInteger(hash);
+            }
+            nonce = nonce.add(new BigInteger("1"));
         }
     }
 }
