@@ -12,8 +12,8 @@ public class Main {
     static Cache cache = new Cache();
     public static void main(String[] args) throws InterruptedException {
 
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        for (int i = 10; i < 20; i++) {
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+        for (int i = 10; i < 50; i++) {
             final int number = i;
             executor.submit(() -> {
                 Request request = new Request(number,"origin");
