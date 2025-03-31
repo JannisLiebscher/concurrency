@@ -24,9 +24,6 @@ public class Cache {
 
     @Override
     public String toString() {
-        return "Cache{" +
-                "lastNumber=" + lastNumber +
-                ", lastFactors=" + Arrays.toString(lastFactors) +
-                '}';
+        return "Cache: " + lastNumber + " → " + Arrays.toString(lastFactors);
     }
 }

@@ -1,9 +1,6 @@
 package org.example.ex2.problem2;
 
-import org.example.ex2.problem1.Account;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,14 +9,22 @@ public class Main {
     static Cache cache = new Cache();
     public static void main(String[] args) throws InterruptedException {
 
-        ExecutorService executor = Executors.newFixedThreadPool(20);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         for (int i = 10; i < 50; i++) {
-            final int number = i;
+            int number = i;
             executor.submit(() -> {
                 Request request = new Request(number,"origin");
                 Response response = new Response(new int[]{},"destination");
-                service(request, response);
+                try {
+                    service(request, response);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if (cache.getLastNumber() != productOf(cache.getLastFactors())) {
+                    System.out.println("FEHLER: Inkonsistenter Cache!");
+                }
                 System.out.println(cache);
+
             });
         }
         executor.shutdown();
@@ -29,10 +34,11 @@ public class Main {
         System.out.println("DONE");
     }
 
-    private static void service(Request req, Response resp) {
+    private static void service(Request req, Response resp) throws InterruptedException {
         int i = req.getNumber();
         int[] factors = factor(i);
         cache.setLastNumber(i);
+        Thread.sleep(1);
         cache.setLastFactors(factors);
         resp.setFactors(factors);
     }
@@ -48,6 +54,14 @@ public class Main {
         }
         return factors.stream().mapToInt(i -> i).toArray();
     }
+    private static int productOf(int[] numbers) {
+        int product = 1;
+        for (int n : numbers) {
+            product *= n;
+        }
+        return product;
+    }
+
 
 
 }
