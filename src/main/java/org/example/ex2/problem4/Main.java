@@ -10,7 +10,7 @@ public class Main {
     static BigInteger winnerNonce = new BigInteger("-1");
     static BigInteger winnerHash;
     static double winnerTime;
-    static String step = "100000";
+    static String step = "1";
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -21,7 +21,7 @@ public class Main {
             BigInteger finalNonce = nonce;
             executor.submit(() -> {
                 try {
-                    service("new block", new BigInteger("4000000000000000000000000000000000000000000000000000000000000000000000"), finalNonce);
+                    service("new block", new BigInteger(String.valueOf(BigInteger.valueOf(2).pow(237))), finalNonce);
                 } catch (NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
                 }
