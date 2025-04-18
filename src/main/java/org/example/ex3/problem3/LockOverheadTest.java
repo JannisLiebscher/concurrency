@@ -2,6 +2,7 @@ package org.example.ex3.problem3;
 
 public class LockOverheadTest {
 
+    @SuppressWarnings("unused")
     private int counter = 0;
 
     public synchronized void incrementSync() {
