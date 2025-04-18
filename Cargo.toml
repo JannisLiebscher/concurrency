@@ -1,0 +1,16 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+# Manuelle Definition der Binaries
+[[bin]]
+name = "ex4_problem1"
+path = "src/main/rust/ex4/problem1/main.rs"
+
+[[bin]]
+name = "ex4_problem2"
+path = "src/main/rust/ex4/problem2/main.rs"
+
+[dependencies]
+colored = "2"
