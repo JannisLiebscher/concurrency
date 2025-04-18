@@ -36,3 +36,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/src/main/rust/ex4/problem1/target/
+/src/main/rust/ex4/problem2/target/
