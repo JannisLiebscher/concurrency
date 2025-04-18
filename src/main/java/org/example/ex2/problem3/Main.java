@@ -12,7 +12,30 @@ public class Main {
     public static final String ANSI_RESET = "\u001B[0m";
     public static void main(String[] args) throws InterruptedException {
 
-        System.out.println(Arrays.toString(factor(21)));
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        for (int number = 10; number <= 50; number++) {
+            for (int j = 0; j < 10; j++) {
+                final int num = number;
+                executor.submit(() -> {
+                    Request request = new Request(num, "origin");
+                    Response response = new Response(new int[]{}, "destination");
+                    try {
+                        service(request, response);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //System.out.println(cache);
+                    try {
+                        Thread.sleep((int)(Math.random() * 10));
+                    } catch (InterruptedException ignored) {}
+                });
+            }
+        }
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            Thread.sleep(100);
+        }
+        System.out.println("DONE");
     }
 
     private static void service(Request req, Response resp) throws InterruptedException {
