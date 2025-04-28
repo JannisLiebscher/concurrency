@@ -1,5 +1,8 @@
 package org.example.ex2.problem3;
 
+import org.example.ex2.problem2.Request;
+import org.example.ex2.problem2.Response;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
