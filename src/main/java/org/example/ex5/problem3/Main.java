@@ -66,11 +66,9 @@ public class Main {
         } finally {
             cache.readLock().unlock();
         }
-
         System.out.println("Couldn't use cached factors");
         // Faktorzerlegung wird außerhalb des Locks durchgeführt (rechenintensiv)
         result = factor(i);
-
         try {
             cache.writeLock().lock();
 
@@ -80,7 +78,6 @@ public class Main {
         } finally {
             cache.writeLock().unlock();
         }
-
         resp.setFactors(result);
     }
 
