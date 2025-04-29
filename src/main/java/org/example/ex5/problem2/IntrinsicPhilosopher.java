@@ -37,7 +37,7 @@ public class IntrinsicPhilosopher implements Runnable {
     private void think() throws InterruptedException {
         synchronized (table) {
             eating = false;
-            table.notifyAll();  // Wake up everyone
+            table.notifyAll();
         }
         System.out.println("Philosopher " + id + " thinks for a while");
         TimeUnit.SECONDS.sleep(1);
