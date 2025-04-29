@@ -3,10 +3,9 @@ package org.example.ex5.problem1;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcurrentList {
-    private static class Node {
+    private static class Node extends ReentrantLock {
         int value;
         Node next;
-        ReentrantLock lock = new ReentrantLock();
 
         Node(int value) {
             this.value = value;
@@ -18,56 +17,100 @@ public class ConcurrentList {
         head = new Node(Integer.MIN_VALUE);
         head.next = new Node(Integer.MAX_VALUE);
     }
-
-    public void insert(int value) {
+    /**
+     * Inserts a new value into the linked list.
+     *
+     * @param value the value to insert
+     * @return true if the value was successfully inserted else false
+     */
+    public boolean insert(int value) {
         Node pred = null, curr = null;
-        head.lock.lock();
+        head.lock();
         try {
             pred = head;
             curr = pred.next;
-            curr.lock.lock();
-            try {
-                while (curr.value < value) {
-                    pred.lock.unlock();
-                    pred = curr;
-                    curr = curr.next;
-                    curr.lock.lock();
-                }
-                Node newNode = new Node(value);
-                newNode.next = curr;
-                pred.next = newNode;
-                System.out.println("Inserted: " + value);
-            } finally {
-                curr.lock.unlock();
+            curr.lock();
+
+            while (curr.value < value) {
+                pred.unlock();
+                pred = curr;
+                if (curr.next == null) return false;
+                curr = curr.next;
+                curr.lock();
             }
+            Node newNode = new Node(value);
+            newNode.next = curr;
+            pred.next = newNode;
+            System.out.println("Inserted: " + value);
+            return true;
         } finally {
-            pred.lock.unlock();
+            if (curr.isHeldByCurrentThread()) curr.unlock();
+            if (pred.isHeldByCurrentThread()) pred.unlock();
         }
     }
 
-    public void delete(int value) {
+    /**
+     * Deletes a value from the linked list if present.
+     *
+     * @param value the value to delete
+     * @return true if the value was successfully deleted; false if the value was not found
+     */
+    public boolean delete(int value) {
         Node pred = null, curr = null;
-        head.lock.lock();
+        head.lock();
         try {
             pred = head;
             curr = pred.next;
-            curr.lock.lock();
-            try {
-                while (curr.value < value) {
-                    pred.lock.unlock();
-                    pred = curr;
-                    curr = curr.next;
-                    curr.lock.lock();
-                }
-                if (curr.value == value) {
-                    pred.next = curr.next;
-                    System.out.println("Deleted: " + value);
-                }
-            } finally {
-                curr.lock.unlock();
+            curr.lock();
+
+            while (curr.value < value) {
+                pred.unlock();
+                pred = curr;
+                if (curr.next == null) return false;
+                curr = curr.next;
+                curr.lock();
+            }
+            if (curr.value == value) {
+                pred.next = curr.next;
+                System.out.println("Deleted: " + value);
+                return true;
             }
         } finally {
-            pred.lock.unlock();
+            if (curr.isHeldByCurrentThread()) curr.unlock();
+            if (pred.isHeldByCurrentThread()) pred.unlock();
+        }
+        return false;
+    }
+
+    /**
+     * Returns a comma-separated string representation of the linked list.
+     * Thread safe, but since Hand-Over-Hand Locking is used a consistent Snapshot is not guaranteed
+     *
+     * @return a string representation of all values in the list
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        Node pred = null, curr = null;
+        head.lock();
+        try {
+            builder.append(head.value);
+            pred = head;
+            curr = pred.next;
+            curr.lock();
+
+            while (true) {
+                pred.unlock();
+                pred = curr;
+                builder.append(",");
+                builder.append(pred.value);
+                if (curr.next == null) return builder.toString();
+                curr = curr.next;
+                curr.lock();
+            }
+        } finally {
+            assert pred != null;
+            if (pred.isLocked()) pred.unlock();
         }
     }
 
