@@ -1,0 +1,73 @@
+use std::sync::{Arc, Mutex};
+use std::thread;
+use colored::Colorize;
+
+const ARRAY_SIZE: usize = 10;
+
+struct FactorizerService {
+    last_number:u64,
+    last_factors:[u64;10]
+}
+
+impl FactorizerService {
+    fn service(&mut self,number:u64) {
+        if self.last_number == number {
+            println!("{}", "Cache hit".green());
+            print_result(number, self.last_factors);
+            return;
+        }
+        println!("{}", "Cache miss".red());
+        FactorizerService::factorizer(number, &mut self.last_factors);
+        print_result(number, self.last_factors);
+        self.last_number = number;
+    }
+
+    fn factorizer(mut number: u64, factors: &mut [u64; ARRAY_SIZE]) {
+        factors.fill(0);
+        let mut counter = 0;
+        for i in 2..number + 1 {
+            while number % i == 0 {
+                factors[counter] = i;
+                number /=i;
+                counter += 1;
+            }
+        }
+    }
+}
+
+fn print_result(number: u64, factors : [u64; ARRAY_SIZE]) {
+    print!("{number} = ");
+    let mut first = true;
+    for element in factors {
+        if element != 0 {
+            if first {
+                first = false;
+            } else {
+                print!(" * ");
+            }
+            print!("{element}");
+        }
+    }
+    println!();
+}
+
+fn main() {
+    let factorizer = FactorizerService{last_number:0, last_factors:[0;ARRAY_SIZE]};
+    let m = Arc::new(Mutex::new(factorizer));
+    let mut handles = vec![];
+
+    for i in 25..50 {
+        let m_clone = Arc::clone(&m);
+        let handle = thread::spawn(move || {
+            let mut factorizer = m_clone.lock().unwrap();
+            if i == 30 {
+                factorizer.service(i);
+            }
+            factorizer.service(i);
+        });
+        handles.push(handle);
+    }
+    for handle in handles {
+        handle.join().unwrap();
+    }
+}
