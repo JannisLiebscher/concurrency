@@ -10,16 +10,25 @@ struct FactorizerService {
 }
 
 impl FactorizerService {
-    fn service(&mut self,number:u64) {
-        if self.last_number == number {
-            println!("{}", "Cache hit".green());
-            print_result(number, self.last_factors);
-            return;
-        }
-        println!("{}", "Cache miss".red());
-        FactorizerService::factorizer(number, &mut self.last_factors);
-        print_result(number, self.last_factors);
-        self.last_number = number;
+    fn service(m_clone: Arc<Mutex<FactorizerService>>, number: u64) {
+        {
+            let service = m_clone.lock().unwrap();
+            if service.last_number == number {
+                println!("{}", "Cache hit".green());
+                print_result(number, &service.last_factors);
+                return;
+            } else {
+                println!("{}", "Cache miss".red());
+            }
+        };
+
+        let mut computed_factors = [0; ARRAY_SIZE];
+        FactorizerService::factorizer(number, &mut computed_factors);
+
+        let mut service = m_clone.lock().unwrap();
+        service.last_number = number;
+        service.last_factors = computed_factors;
+        print_result(number, &service.last_factors);
     }
 
     fn factorizer(mut number: u64, factors: &mut [u64; ARRAY_SIZE]) {
@@ -35,7 +44,7 @@ impl FactorizerService {
     }
 }
 
-fn print_result(number: u64, factors : [u64; ARRAY_SIZE]) {
+fn print_result(number: u64, &factors : &[u64; ARRAY_SIZE]) {
     print!("{number} = ");
     let mut first = true;
     for element in factors {
@@ -59,11 +68,10 @@ fn main() {
     for i in 25..50 {
         let m_clone = Arc::clone(&m);
         let handle = thread::spawn(move || {
-            let mut factorizer = m_clone.lock().unwrap();
             if i == 30 {
-                factorizer.service(i);
+                FactorizerService::service(Arc::clone(&m_clone), i);
             }
-            factorizer.service(i);
+            FactorizerService::service(m_clone, i);
         });
         handles.push(handle);
     }

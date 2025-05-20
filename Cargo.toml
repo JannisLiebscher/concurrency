@@ -20,5 +20,9 @@ path = "src/main/rust/ex6/problem1/main.rs"
 name = "ex6_problem2"
 path = "src/main/rust/ex6/problem2/main.rs"
 
+[[bin]]
+name = "ex6_problem3"
+path = "src/main/rust/ex6/problem3/main.rs"
+
 [dependencies]
 colored = "2"
