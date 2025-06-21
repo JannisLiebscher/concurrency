@@ -1,0 +1,1 @@
+libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8"
